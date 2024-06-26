@@ -44,7 +44,7 @@ const adaptableOptions: AdaptableOptions = {
   primaryKey: "id",
   userName: "Test User",
   adaptableId: "Adaptable Vue Demo",
-  adaptableStateKey: "adaptable_react_demo",
+  adaptableStateKey: "adaptable_vue_demo",
   predefinedConfig: {
     Dashboard: {
       Revision: CONFIG_REVISION,
