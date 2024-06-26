@@ -79,11 +79,7 @@ const adaptableOptions: AdaptableOptions = {
       style="display: flex; flex-direction: column; height: calc(100vh - 20px)"
     >
       <AdaptableUI />
-      <AdaptableAgGridVue
-        :columnDefs="columnDefs"
-        style="flex: 1"
-        class="ag-theme-alpine"
-      />
+      <AdaptableAgGridVue style="flex: 1" class="ag-theme-alpine" />
     </div>
   </AdaptableProvider>
 </template>

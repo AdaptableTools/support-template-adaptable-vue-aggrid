@@ -11,7 +11,7 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
-    "@adaptabletools/adaptable-vue3-aggrid": "18.1.4",
+    "@adaptabletools/adaptable-vue3-aggrid": "18.1.6",
     "@ag-grid-community/client-side-row-model": "^31.3.2",
     "@ag-grid-community/core": "^31.3.2",
     "@ag-grid-community/vue3": "^31.3.2",
