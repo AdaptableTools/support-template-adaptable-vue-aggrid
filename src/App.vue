@@ -3,6 +3,7 @@ import {
   AdaptableProvider,
   AdaptableAgGridVue,
   AdaptableUI,
+  AdaptableStateFunctionConfig,
 } from "@adaptabletools/adaptable-vue3-aggrid";
 import type {
   AdaptableApi,
@@ -45,6 +46,23 @@ const adaptableOptions: AdaptableOptions = {
   userName: "Test User",
   adaptableId: "Adaptable Vue Demo",
   adaptableStateKey: "adaptable_vue_demo",
+  stateOptions: {
+   persistState: (state, adaptableStateFunctionConfig) => {
+     localStorage.setItem(adaptableStateFunctionConfig.adaptableStateKey, JSON.stringify(state));
+     return Promise.resolve(true);
+   },
+   loadState: (config: AdaptableStateFunctionConfig) => {
+     return new Promise((resolve) => {
+       let state = {};
+       try {
+         state = JSON.parse(localStorage.getItem(config.adaptableStateKey)) || {}
+       } catch (err) {
+         console.log('Error loading state', err);
+       }
+       resolve(state);
+     });
+   },
+  };
   predefinedConfig: {
     Dashboard: {
       Revision: CONFIG_REVISION,
