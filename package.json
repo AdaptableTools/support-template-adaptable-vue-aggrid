@@ -11,23 +11,9 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
-    "@adaptabletools/adaptable-vue3-aggrid": "~19.2.0",
-    "@ag-grid-community/client-side-row-model": "~32.3.0",
-    "@ag-grid-community/core": "~32.3.0",
-    "@ag-grid-community/vue3": "~32.3.0",
-    "@ag-grid-community/styles": "~32.3.0",
-    "@ag-grid-enterprise/charts": "~32.3.0",
-    "@ag-grid-enterprise/clipboard": "~32.3.0",
-    "@ag-grid-enterprise/column-tool-panel": "~32.3.0",
-    "@ag-grid-enterprise/excel-export": "~32.3.0",
-    "@ag-grid-enterprise/filter-tool-panel": "~32.3.0",
-    "@ag-grid-enterprise/menu": "~32.3.0",
-    "@ag-grid-enterprise/range-selection": "~32.3.0",
-    "@ag-grid-enterprise/rich-select": "~32.3.0",
-    "@ag-grid-enterprise/row-grouping": "~32.3.0",
-    "@ag-grid-enterprise/side-bar": "~32.3.0",
-    "@ag-grid-enterprise/sparklines": "~32.3.0",
-    "@ag-grid-enterprise/status-bar": "~32.3.0",
+    "@adaptabletools/adaptable-vue3-aggrid": "20.0.0-canary.12",
+    "ag-grid-enterprise": "~33.0.4",
+    "ag-grid-vue3": "~33.0.4",
     "vue": "^3.4.30"
   },
   "devDependencies": {
@@ -36,6 +22,7 @@
     "@vitejs/plugin-vue": "^5.0.5",
     "@vue/tsconfig": "^0.5.1",
     "npm-run-all2": "^6.2.0",
+    "prettier": "3.5.3",
     "typescript": "~5.4.0",
     "vite": "^5.3.1",
     "vue-tsc": "^2.0.21"
