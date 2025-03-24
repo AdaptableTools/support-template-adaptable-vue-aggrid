@@ -66,7 +66,7 @@ const adaptableOptions: AdaptableOptions = {
       });
     },
   },
-  predefinedConfig: {
+  initialState: {
     Dashboard: {
       Revision: CONFIG_REVISION,
       Tabs: [

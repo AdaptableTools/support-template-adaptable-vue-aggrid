@@ -13,8 +13,8 @@ For full information on how to use AdapTable Vue see the [AdapTable Documentatio
 The demo is built using these key packages:
 
 - [Vue](https://github.com/vuejs) version 3.x
-- [AdapTable](https://docs.adaptabletools.com/) version 20.x
-- [AG Grid](https://www.ag-grid.com) version 33.x
+- [AdapTable](https://docs.adaptabletools.com/) version 20.0
+- [AG Grid](https://www.ag-grid.com) version 33.0
 
 ## Contents
 
@@ -22,7 +22,7 @@ This template contains just the bare bones required to set up an AdapTable insta
 
 A "real world" example would most likely also include:
 
-- Design-time - providing [Adaptable Options](https://docs.adaptabletools.com/guide/reference-options-overview) and [Predefined Config](https://docs.adaptabletools.com/guide/reference-predefined-config) to configure the application
+- Design-time - providing [Adaptable Options](https://docs.adaptabletools.com/guide/reference-options-overview) and [Initial Adaptable State](https://docs.adaptabletools.com/guide/reference-initial-state) to configure the application
 - Run-time - using the [Adaptable API](https://docs.adaptabletools.com/guide/reference-api-overview) and listening to [Adaptable Events](https://docs.adaptabletools.com/guide/reference-event-overview)
 
 ## Installation
