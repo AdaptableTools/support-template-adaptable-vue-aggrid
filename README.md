@@ -22,8 +22,8 @@ This template contains just the bare bones required to set up an AdapTable insta
 
 A "real world" example would most likely also include:
 
-- Design-time - providing [Adaptable Options](https://www.adaptabletools.com/docs/reference-options-overview) and [Initial Adaptable State](https://www.adaptabletools.com/docsreference-initial-state) to configure the application
-- Run-time - using the [Adaptable API](https://www.adaptabletools.com/docs/reference-api-overview) and listening to [Adaptable Events](https://www.adaptabletools.com/docsreference-event-overview)
+- Design-time - providing [Adaptable Options](https://www.adaptabletools.com/docs/reference-options-overview) and [Initial Adaptable State](https://www.adaptabletools.com/docs/reference-initial-state) to configure the application
+- Run-time - using the [Adaptable API](https://www.adaptabletools.com/docs/reference-api-overview) and listening to [Adaptable Events](https://www.adaptabletools.com/docs/reference-event-overview)
 
 ## Installation
 
