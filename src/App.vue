@@ -26,7 +26,12 @@ import type { GridOptions } from 'ag-grid-community';
 const NUM_ROWS = 30_000;
 const NUM_COLUMNS = 200;
 
-type Phase = 'fetching' | 'preparingData' | 'preparingColumns' | 'ready' | 'error';
+type Phase =
+  | 'fetching'
+  | 'preparingData'
+  | 'preparingColumns'
+  | 'ready'
+  | 'error';
 
 const phase = ref<Phase>('fetching');
 const fetchedRowCount = ref<number | null>(null);
@@ -49,7 +54,10 @@ onMounted(() => {
 
       phase.value = 'preparingData';
       const numDuplicateSets = getNumDuplicateSets(NUM_COLUMNS);
-      const extended = extendRowDataWithDuplicateColumns(data, numDuplicateSets);
+      const extended = extendRowDataWithDuplicateColumns(
+        data,
+        numDuplicateSets
+      );
       if (cancelled.value) return;
       preparedData.value = extended;
 
@@ -116,7 +124,7 @@ function buildGridAndAdaptableOptions() {
         Tabs: [
           {
             Name: 'Default',
-            Toolbars: ['Layout', 'ColumnFilter','GridFilter'],
+            Toolbars: ['Layout', 'ColumnFilter', 'GridFilter'],
           },
         ],
       },
@@ -131,7 +139,36 @@ function buildGridAndAdaptableOptions() {
             Name: 'Grouped',
             TableColumns: getTableColumnIds(NUM_COLUMNS),
             RowGroupedColumns: ['prodName'],
-          }
+            TableAggregationColumns: [
+              {
+                ColumnId: 'price',
+                AggFunc: 'sum',
+              },
+              {
+                ColumnId: 'amount',
+                AggFunc: 'avg',
+              },
+              {
+                ColumnId: 'price_3',
+                AggFunc: 'max',
+              },
+            ],
+          },
+          {
+            Name: 'Filtered',
+            TableColumns: getTableColumnIds(NUM_COLUMNS),
+            ColumnFilters: [
+              {
+                ColumnId: 'price',
+                Predicates:[
+                  {
+                    PredicateId: 'GreaterThan',
+                    Inputs: [100],
+                  }
+                ]
+              },
+            ],
+          },
         ],
       },
     },
@@ -187,7 +224,9 @@ const hasError = () => phase.value === 'error';
   >
     <AdaptableProvider
       :gridOptions="gridOptions"
-      :adaptableOptions="(adaptableOptions as AdaptableOptions<ExtendedOrderData>)"
+      :adaptableOptions="
+        adaptableOptions as AdaptableOptions<ExtendedOrderData>
+      "
       :modules="agGridModules"
       @onAdaptableReady="onAdaptableReady"
     >
@@ -221,8 +260,7 @@ const hasError = () => phase.value === 'error';
         :key="p.id"
         :style="{
           fontSize: 16,
-          color:
-            p.active() || p.completed() ? '#000' : '#999',
+          color: p.active() || p.completed() ? '#000' : '#999',
         }"
       >
         {{ p.label(phase) }}
