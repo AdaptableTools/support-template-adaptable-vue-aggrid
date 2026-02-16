@@ -146,7 +146,6 @@ function onLoadGrid() {
 const onAdaptableReady = ({ adaptableApi, agGridApi }: AdaptableReadyInfo) => {
   (globalThis as Record<string, unknown>).adaptableApi = adaptableApi;
   (globalThis as Record<string, unknown>).agGridApi = agGridApi;
-  adaptableApi?.columnApi.autosizeAllColumns();
 };
 
 const columnCount = getTableColumnIds(NUM_COLUMNS).length;
