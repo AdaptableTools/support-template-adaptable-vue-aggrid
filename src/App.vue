@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import type {
-  AdaptableOptions,
-  AdaptableStateFunctionConfig,
-} from '@adaptabletools/adaptable-vue3-aggrid';
 import {
   AdaptableAgGridVue,
   AdaptableProvider,
   AdaptableUI,
+
+  type AdaptableApi,
+  type AdaptableOptions,
+  type AdaptableReadyInfo,
+  type AdaptableStateFunctionConfig,
 } from '@adaptabletools/adaptable-vue3-aggrid';
 import type { WebFramework } from './rowData';
 import { rowData } from './rowData';
@@ -46,28 +47,6 @@ const adaptableOptions: AdaptableOptions = {
   adaptableStateKey: 'adaptable_vue_demo',
   containerOptions: {
     agGridContainer: 'afl',
-  },
-  stateOptions: {
-    persistState: (state, adaptableStateFunctionConfig) => {
-      localStorage.setItem(
-        adaptableStateFunctionConfig.adaptableStateKey,
-        JSON.stringify(state)
-      );
-      return Promise.resolve(true);
-    },
-    loadState: (config: AdaptableStateFunctionConfig) => {
-      return new Promise((resolve) => {
-        let state = {};
-        try {
-          state =
-            JSON.parse(localStorage.getItem(config.adaptableStateKey) ?? '') ||
-            {};
-        } catch (err) {
-          console.log('Error loading state', err);
-        }
-        resolve(state);
-      });
-    },
   },
   initialState: {
     Dashboard: {
@@ -124,7 +103,10 @@ const adaptableOptions: AdaptableOptions = {
     :gridOptions="gridOptions"
     :adaptableOptions="adaptableOptions"
     :modules="agGridModules"
-    @onAdaptableReady="() => console.log('Adaptable Ready')"
+    @onAdaptableReady="({ adaptableApi, agGridApi }: AdaptableReadyInfo) => {
+      adaptableApi?.quickSearchApi.runQuickSearch('toy');
+      agGridApi?.autoSizeAllColumns();
+    }"
   >
     <div
       style="display: flex; flex-direction: column; height: calc(100vh - 20px)"
