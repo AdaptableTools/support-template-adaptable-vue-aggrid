@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import type {
-  AdaptableOptions,
-  AdaptableStateFunctionConfig,
-} from '@adaptabletools/adaptable-vue3-aggrid';
+import type { AdaptableOptions } from '@adaptabletools/adaptable-vue3-aggrid';
 import {
   AdaptableAgGridVue,
   AdaptableProvider,
@@ -46,28 +43,6 @@ const adaptableOptions: AdaptableOptions = {
   adaptableStateKey: 'adaptable_vue_demo',
   containerOptions: {
     agGridContainer: 'afl',
-  },
-  stateOptions: {
-    persistState: (state, adaptableStateFunctionConfig) => {
-      localStorage.setItem(
-        adaptableStateFunctionConfig.adaptableStateKey,
-        JSON.stringify(state)
-      );
-      return Promise.resolve(true);
-    },
-    loadState: (config: AdaptableStateFunctionConfig) => {
-      return new Promise((resolve) => {
-        let state = {};
-        try {
-          state =
-            JSON.parse(localStorage.getItem(config.adaptableStateKey) ?? '') ||
-            {};
-        } catch (err) {
-          console.log('Error loading state', err);
-        }
-        resolve(state);
-      });
-    },
   },
   initialState: {
     Dashboard: {

@@ -11,10 +11,10 @@
     "type-check": "vue-tsc --build --force"
   },
   "dependencies": {
-    "@adaptabletools/adaptable-vue3-aggrid": "21.0.0",
-    "ag-grid-enterprise": "34.0.2",
-    "ag-grid-vue3": "34.0.2",
-    "ag-charts-enterprise": "12.0.2",
+    "@adaptabletools/adaptable-vue3-aggrid": "22.0.0",
+    "ag-grid-enterprise": "35.0.1",
+    "ag-grid-vue3": "35.0.1",
+    "ag-charts-enterprise": "13.0.1",
     "vue": "^3.4.30"
   },
   "devDependencies": {
