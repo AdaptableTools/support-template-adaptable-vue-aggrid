@@ -22,10 +22,18 @@ import {
 } from './testing-data/big-data/rowData';
 import type { GridOptions } from 'ag-grid-community';
 
-/** Configure rows/columns here - change and reload the page */
+/**
+ * ---------- DATA SIZE CONFIGURATION ----------
+ * Adjust these to control the volume of test data.
+ * NUM_ROWS:    max rows fetched from the API (capped at 30k server-side)
+ * NUM_COLUMNS: target column count; non-numeric columns appear once,
+ *              numeric columns (price, amount, invoiceNum) are duplicated
+ *              in sets until we reach this target.
+ */
 const NUM_ROWS = 30_000;
 const NUM_COLUMNS = 200;
 
+// ---------- Loading-phase state ----------
 type Phase =
   | 'fetching'
   | 'preparingData'
@@ -41,9 +49,20 @@ const showGrid = ref(false);
 
 const cancelled = ref(false);
 
+/**
+ * ---------- DATA PREPARATION PIPELINE ----------
+ * Runs on mount in three phases, each reflected in the loading UI:
+ *
+ * 1. FETCH   – pull raw order rows from the remote API
+ * 2. PREPARE DATA  – normalise prices for specific products so that the
+ *                     "only" aggregation resolves to a concrete value,
+ *                     then duplicate numeric fields to reach NUM_COLUMNS
+ * 3. PREPARE COLUMNS – build column definitions & column-id lists
+ */
 onMounted(() => {
   (async () => {
     try {
+      // --- Phase 1: Fetch raw data ---
       phase.value = 'fetching';
       errorMessage.value = null;
       fetchedRowCount.value = null;
@@ -52,6 +71,20 @@ onMounted(() => {
       if (cancelled.value) return;
       fetchedRowCount.value = data.length;
 
+      // Force uniform price within these product groups so the "only"
+      // aggregation shows a real value instead of "*" (mixed).
+      const uniformPriceProducts = ['Hat', 'Tuna'];
+      for (const name of uniformPriceProducts) {
+        const rows = data.filter((r) => r.prodName === name);
+        if (rows.length > 0) {
+          const price = rows[0].price;
+          for (const row of rows) {
+            row.price = price;
+          }
+        }
+      }
+
+      // --- Phase 2: Extend row data with duplicated numeric fields ---
       phase.value = 'preparingData';
       const numDuplicateSets = getNumDuplicateSets(NUM_COLUMNS);
       const extended = extendRowDataWithDuplicateColumns(
@@ -61,6 +94,7 @@ onMounted(() => {
       if (cancelled.value) return;
       preparedData.value = extended;
 
+      // --- Phase 3: Pre-compute column definitions ---
       phase.value = 'preparingColumns';
       getOrderColumnDefs(NUM_COLUMNS);
       getTableColumnIds(NUM_COLUMNS);
@@ -81,9 +115,15 @@ onBeforeUnmount(() => {
   cancelled.value = true;
 });
 
+// ---------- Grid & Adaptable configuration ----------
 const adaptableOptions = ref<AdaptableOptions<ExtendedOrderData> | null>(null);
 const gridOptions = ref<GridOptions<ExtendedOrderData> | null>(null);
 
+/**
+ * Builds AG Grid options and AdaptableTools options when the user clicks
+ * "Load Grid". This is deferred (not built during the preparation pipeline)
+ * so the loading screen stays responsive.
+ */
 function buildGridAndAdaptableOptions() {
   if (!preparedData.value) return;
 
@@ -114,6 +154,7 @@ function buildGridAndAdaptableOptions() {
     licenseKey: adaptableLicense?.trim?.(),
     primaryKey: 'id',
     userName: 'Test User',
+    // Unique IDs per session so Adaptable starts from initialState every time
     adaptableId: `big-data-${Date.now()}`,
     adaptableStateKey: `big-data-${Date.now()}`,
     containerOptions: {
@@ -129,31 +170,27 @@ function buildGridAndAdaptableOptions() {
         ],
       },
       Layout: {
-        CurrentLayout: 'Table',
+        CurrentLayout: 'Grouped',
         Layouts: [
+          // Simple flat table with all columns
           {
             Name: 'Table',
             TableColumns: getTableColumnIds(NUM_COLUMNS),
           },
+          // Grouped by product name with aggregations on every numeric column,
+          // alternating between "only" (shows value when all rows agree) and "sum"
           {
             Name: 'Grouped',
             TableColumns: getTableColumnIds(NUM_COLUMNS),
             RowGroupedColumns: ['prodName'],
-            TableAggregationColumns: [
-              {
-                ColumnId: 'price',
-                AggFunc: 'sum',
-              },
-              {
-                ColumnId: 'amount',
-                AggFunc: 'avg',
-              },
-              {
-                ColumnId: 'price_3',
-                AggFunc: 'max',
-              },
-            ],
+            TableAggregationColumns: getOrderColumnDefs(NUM_COLUMNS)
+              .filter((col) => col.cellDataType === 'number' && !col.hide)
+              .map((col, i) => ({
+                ColumnId: col.field as string,
+                AggFunc: i % 2 === 0 ? 'only' : 'sum',
+              })),
           },
+          // Pre-filtered: only rows where price > 100
           {
             Name: 'Filtered',
             TableColumns: getTableColumnIds(NUM_COLUMNS),
@@ -180,11 +217,13 @@ function onLoadGrid() {
   showGrid.value = true;
 }
 
+// Expose APIs globally for console debugging
 const onAdaptableReady = ({ adaptableApi, agGridApi }: AdaptableReadyInfo) => {
   (globalThis as Record<string, unknown>).adaptableApi = adaptableApi;
   (globalThis as Record<string, unknown>).agGridApi = agGridApi;
 };
 
+// ---------- Loading-screen phase descriptions ----------
 const columnCount = getTableColumnIds(NUM_COLUMNS).length;
 
 const phases = [

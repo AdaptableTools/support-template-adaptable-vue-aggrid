@@ -1,21 +1,19 @@
+/**
+ * Row-data fetching and extension for the big-data demo.
+ *
+ * Data is fetched from a paginated REST API, then numeric fields are
+ * duplicated across each row to match the duplicated column definitions
+ * produced by ./columnDefs.ts.
+ */
+
 const API_BASE = 'https://docs.adaptabletools.com/.netlify/functions/json-server';
 const apiPath = `${API_BASE}/orders100k`;
 
-/** Fields to duplicate when extending row data (excludes id, prodName, company - those are single) */
-export const baseDataFieldNames = [
-  'price',
-  'amount',
-  'currency',
-  'lastName',
-  'firstName',
-  'origin',
-  'toAddress',
-  'orderDate',
-  'dueDate',
-  'invoiceNum',
-  'accountNum',
-  'department',
-] as const;
+/**
+ * Only the numeric (aggregatable) fields are duplicated.
+ * Must stay in sync with duplicatableColumnDefsTemplate in ./columnDefs.ts.
+ */
+export const baseDataFieldNames = ['price', 'amount', 'invoiceNum'] as const;
 
 export interface OrderData {
   id: string;
@@ -28,8 +26,8 @@ export interface OrderData {
   price: number;
   currency: string;
   amount: number;
-  orderDate: string; // ISO date string
-  dueDate: string; // ISO date string
+  orderDate: string;
+  dueDate: string;
   invoiceNum: string;
   accountNum: string;
   department: string;
@@ -38,33 +36,40 @@ export interface OrderData {
 export type ExtendedOrderData = OrderData & Record<string, unknown>;
 
 /**
- * Extends row data with duplicated column values for big data column testing.
- * For numColumns=2, adds prodName_1, company_1, etc. (copying from prodName, company, ...).
- * For numColumns=3, adds _1 and _2 suffixed fields, etc.
+ * Clones numeric field values into suffixed copies on each row.
+ *
+ * Given numDuplicateSets=3, each row gains:
+ *   price, amount, invoiceNum          (original — set 0, no suffix)
+ *   price_1, amount_1, invoiceNum_1    (set 1)
+ *   price_2, amount_2, invoiceNum_2    (set 2)
+ *
+ * The values are copied from the original fields so aggregations work.
  */
 export function extendRowDataWithDuplicateColumns<T extends OrderData>(
   data: T[],
-  numColumns: number
+  numDuplicateSets: number
 ): ExtendedOrderData[] {
-  if (numColumns <= 1) {
+  if (numDuplicateSets <= 1) {
     return data as ExtendedOrderData[];
   }
 
   return data.map((row) => {
     const extended: ExtendedOrderData = { ...row } as ExtendedOrderData;
-    for (let i = 1; i < numColumns; i++) {
+    for (let i = 1; i < numDuplicateSets; i++) {
       const suffix = `_${i}`;
       for (const field of baseDataFieldNames) {
-        const value = row[field];
-        extended[`${field}${suffix}`] = value;
+        extended[`${field}${suffix}`] = row[field];
       }
     }
     return extended;
   });
 }
 
+/**
+ * Fetches order rows from the remote API (paginated, 10k per page).
+ * Server caps at 30k rows regardless of maxRows.
+ */
 export async function fetchOrdersData(maxRows: number = 100_000): Promise<OrderData[]> {
-  // Ensure maxRows does not exceed 30,000
   const totalRows = Math.min(maxRows, 30_000);
   let page = 1;
   const limit = 10_000;
@@ -78,6 +83,5 @@ export async function fetchOrdersData(maxRows: number = 100_000): Promise<OrderD
   }
 
   const allData = (await Promise.all(promises)).flat();
-  // Only return up to totalRows
   return allData.slice(0, totalRows);
 }
