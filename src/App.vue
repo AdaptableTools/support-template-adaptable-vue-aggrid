@@ -21,6 +21,25 @@ import {
   type ExtendedOrderData,
 } from './testing-data/big-data/rowData';
 import type { GridOptions } from 'ag-grid-community';
+import type { OrderData } from './testing-data/big-data/rowData';
+
+/** Sets `targetField` to the first row's value for every row matching a `groupField` value. */
+function uniformise<K extends keyof OrderData>(
+  data: OrderData[],
+  groupField: keyof OrderData,
+  groupValues: string[],
+  targetField: K
+) {
+  for (const groupValue of groupValues) {
+    const rows = data.filter((r) => r[groupField] === groupValue);
+    if (rows.length > 0) {
+      const value = rows[0][targetField];
+      for (const row of rows) {
+        row[targetField] = value;
+      }
+    }
+  }
+}
 
 /**
  * ---------- DATA SIZE CONFIGURATION ----------
@@ -68,21 +87,20 @@ onMounted(() => {
       fetchedRowCount.value = null;
 
       const data = await fetchOrdersData(NUM_ROWS);
-      if (cancelled.value) return;
+      if (cancelled.value) {
+        return;
+      }
       fetchedRowCount.value = data.length;
 
-      // Force uniform price within these product groups so the "only"
-      // aggregation shows a real value instead of "*" (mixed).
-      const uniformPriceProducts = ['Hat', 'Tuna'];
-      for (const name of uniformPriceProducts) {
-        const rows = data.filter((r) => r.prodName === name);
-        if (rows.length > 0) {
-          const price = rows[0].price;
-          for (const row of rows) {
-            row.price = price;
-          }
-        }
-      }
+      // Force uniform values within specific groups so the "only"
+      // aggregation shows a real value instead of null (mixed).
+      uniformise(data, 'prodName', ['Hat', 'Tuna'], 'price');
+      uniformise(
+        data,
+        'company',
+        ['Koch - Jones', 'Johns - Cormier'],
+        'invoiceNum'
+      );
 
       // --- Phase 2: Extend row data with duplicated numeric fields ---
       phase.value = 'preparingData';
@@ -91,14 +109,18 @@ onMounted(() => {
         data,
         numDuplicateSets
       );
-      if (cancelled.value) return;
+      if (cancelled.value) {
+        return;
+      }
       preparedData.value = extended;
 
       // --- Phase 3: Pre-compute column definitions ---
       phase.value = 'preparingColumns';
       getOrderColumnDefs(NUM_COLUMNS);
       getTableColumnIds(NUM_COLUMNS);
-      if (cancelled.value) return;
+      if (cancelled.value) {
+        return;
+      }
 
       phase.value = 'ready';
     } catch (err) {
@@ -125,7 +147,9 @@ const gridOptions = ref<GridOptions<ExtendedOrderData> | null>(null);
  * so the loading screen stays responsive.
  */
 function buildGridAndAdaptableOptions() {
-  if (!preparedData.value) return;
+  if (!preparedData.value) {
+    return;
+  }
 
   gridOptions.value = prepareGridOptions<ExtendedOrderData>({
     columnDefs: getOrderColumnDefs(NUM_COLUMNS),
@@ -157,9 +181,6 @@ function buildGridAndAdaptableOptions() {
     // Unique IDs per session so Adaptable starts from initialState every time
     adaptableId: `big-data-${Date.now()}`,
     adaptableStateKey: `big-data-${Date.now()}`,
-    containerOptions: {
-      agGridContainer: 'afl',
-    },
     initialState: {
       Dashboard: {
         Tabs: [
@@ -170,7 +191,7 @@ function buildGridAndAdaptableOptions() {
         ],
       },
       Layout: {
-        CurrentLayout: 'Grouped',
+        CurrentLayout: 'Grouped Name',
         Layouts: [
           // Simple flat table with all columns
           {
@@ -180,9 +201,20 @@ function buildGridAndAdaptableOptions() {
           // Grouped by product name with aggregations on every numeric column,
           // alternating between "only" (shows value when all rows agree) and "sum"
           {
-            Name: 'Grouped',
+            Name: 'Grouped Name',
             TableColumns: getTableColumnIds(NUM_COLUMNS),
             RowGroupedColumns: ['prodName'],
+            TableAggregationColumns: getOrderColumnDefs(NUM_COLUMNS)
+              .filter((col) => col.cellDataType === 'number' && !col.hide)
+              .map((col, i) => ({
+                ColumnId: col.field as string,
+                AggFunc: i % 2 === 0 ? 'only' : 'sum',
+              })),
+          },
+          {
+            Name: 'Grouped Company',
+            TableColumns: getTableColumnIds(NUM_COLUMNS),
+            RowGroupedColumns: ['company'],
             TableAggregationColumns: getOrderColumnDefs(NUM_COLUMNS)
               .filter((col) => col.cellDataType === 'number' && !col.hide)
               .map((col, i) => ({
@@ -197,12 +229,12 @@ function buildGridAndAdaptableOptions() {
             ColumnFilters: [
               {
                 ColumnId: 'price',
-                Predicates:[
+                Predicates: [
                   {
                     PredicateId: 'GreaterThan',
                     Inputs: [100],
-                  }
-                ]
+                  },
+                ],
               },
             ],
           },
@@ -221,6 +253,20 @@ function onLoadGrid() {
 const onAdaptableReady = ({ adaptableApi, agGridApi }: AdaptableReadyInfo) => {
   (globalThis as Record<string, unknown>).adaptableApi = adaptableApi;
   (globalThis as Record<string, unknown>).agGridApi = agGridApi;
+
+  adaptableApi.eventApi.on('BeforeAdaptableStateChange', (event) => {
+    if (event.action.type === 'LAYOUT_SELECT') {
+      adaptableApi.userInterfaceApi.showProgressIndicator({
+        text: `Loading Layout...`,
+      });
+    }
+  });
+
+  adaptableApi.eventApi.on('AdaptableStateChanged', (event) => {
+    if (event.action.type === 'LAYOUT_SELECT') {
+      adaptableApi.userInterfaceApi.hideProgressIndicator();
+    }
+  });
 };
 
 // ---------- Loading-screen phase descriptions ----------
