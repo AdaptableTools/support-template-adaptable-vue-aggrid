@@ -6,15 +6,15 @@ AdapTable Vue is the Vue Framework version of AdapTable - the market-leading, lo
 
 This template is particularly useful if you wish to build a very small demo for Support purposes.
 
-For full information on how to use AdapTable Vue see the [AdapTable Documentation](https://www.adaptabletools.com/docs/vue-overview).
+For full information on how to use AdapTable Vue see the [AdapTable Documentation](https://www.adaptabletools.com/docs?framework=vue).
 
 ## Versions and Dependencies
 
 The demo is built using these key packages:
 
 - [Vue](https://github.com/vuejs) version 3.x
-- [AdapTable](https://www.adaptabletools.com) version 22
-- [AG Grid](https://www.ag-grid.com) version 35
+- [AdapTable](https://www.adaptabletools.com) version 23
+- [AG Grid](https://www.ag-grid.com) version 35.3
 
 ## Contents
 
@@ -22,8 +22,8 @@ This template contains just the bare bones required to set up an AdapTable insta
 
 A "real world" example would most likely also include:
 
-- Design-time - providing [Adaptable Options](https://www.adaptabletools.com/docs/reference-options-overview) and [Initial Adaptable State](https://www.adaptabletools.com/docs/reference-initial-state) to configure the application
-- Run-time - using the [Adaptable API](https://www.adaptabletools.com/docs/reference-api-overview) and listening to [Adaptable Events](https://www.adaptabletools.com/docs/reference-event-overview)
+- Design-time - providing [Adaptable Options](https://www.adaptabletools.com/docs/technical-reference-adaptable-options?framework=vue) and [Initial Adaptable State](https://www.adaptabletools.com/docs/technical-reference-initial-state?framework=vue) to configure the application
+- Run-time - using the [Adaptable API](https://www.adaptabletools.com/docs/technical-reference-adaptable-api?framework=vue) and listening to [Adaptable Events](https://www.adaptabletools.com/docs/technical-reference-adaptable-events?framework=vue)
 
 ## Installation
 
@@ -49,7 +49,7 @@ Please contact [`sales@adaptabletools.com`](mailto:sales@adaptabletools.com) or 
 
 ## Help
 
-Developers can learn how to access AdapTable programmatically at [AdapTable Documentation](https://www.adaptabletools.com/docs).
+Developers can learn how to access AdapTable programmatically at [AdapTable Documentation](https://www.adaptabletools.com/docs?framework=vue).
 
 Here you can see a large number of AdapTable demos each showing a different feature, function or option in AdapTable.
 
