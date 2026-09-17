@@ -13,8 +13,8 @@ For full information on how to use AdapTable Vue see the [AdapTable Documentatio
 The demo is built using these key packages:
 
 - [Vue](https://github.com/vuejs) version 3.x
-- [AdapTable](https://www.adaptabletools.com) version 23
-- [AG Grid](https://www.ag-grid.com) version 35.3
+- [AdapTable](https://www.adaptabletools.com) version 23.1
+- [AG Grid](https://www.ag-grid.com) version 36.2
 
 ## Contents
 
